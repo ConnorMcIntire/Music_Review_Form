@@ -2,51 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Submit Music Review</title>
   <style>
-    body {
-      font-family: sans-serif;
-      max-width: 600px;
-      margin: 2rem auto;
-    }
-    label {
-      display: block;
-      margin-top: 1rem;
-    }
-    input, select {
-      width: 100%;
-      padding: 0.5rem;
-      margin-top: 0.25rem;
-    }
-    button {
-      margin-top: 1.5rem;
-      padding: 0.75rem 1.5rem;
-      background: #3b82f6;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #2563eb;
-    }
+    /* your styles here */
   </style>
 </head>
 <body>
   <h1>Submit a Music Review</h1>
   <form id="reviewForm">
-    <label>Song:
-      <input type="text" name="song" required />
-    </label>
-    <label>Album:
-      <input type="text" name="album" />
-    </label>
-    <label>Artist:
-      <input type="text" name="artist" required />
-    </label>
-    <label>Rating (1-10):
-      <input type="number" name="rating" min="1" max="10" required />
-    </label>
+    <label>Song: <input type="text" name="song" required /></label><br />
+    <label>Album: <input type="text" name="album" /></label><br />
+    <label>Artist: <input type="text" name="artist" required /></label><br />
+    <label>Rating (1-10): <input type="number" name="rating" min="1" max="10" required /></label><br />
     <button type="submit">Submit Review</button>
   </form>
 
@@ -54,37 +21,35 @@
 
   <script>
     const form = document.getElementById('reviewForm');
-const status = document.getElementById('status');
+    const status = document.getElementById('status');
 
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
 
-  const data = {
-    song: form.song.value,
-    album: form.album.value,
-    artist: form.artist.value,
-    rating: form.rating.value
-  };
+      const data = {
+        song: form.song.value,
+        album: form.album.value,
+        artist: form.artist.value,
+        rating: form.rating.value,
+      };
 
-  try {
-    const res = await fetch('https://script.google.com/macros/s/AKfycbxS6G2hpt2Lsl4esplUzyPY3PsduRHoaKzW6vQyaKW0EPkxuaaXevG_SAy3EZtbUkSx/exec', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
+      try {
+        const res = await fetch('/api/review', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+
+        if (res.ok) {
+          status.textContent = '✅ Review submitted!';
+          form.reset();
+        } else {
+          status.textContent = '❌ Failed to submit review.';
+        }
+      } catch (err) {
+        status.textContent = '❌ Error: ' + err.message;
+      }
     });
-
-    if (res.ok) {
-      status.textContent = "✅ Review submitted!";
-      form.reset();
-    } else {
-      status.textContent = "❌ Failed to submit review.";
-    }
-  } catch (err) {
-    status.textContent = "❌ Error: " + err.message;
-  }
-});
   </script>
 </body>
 </html>
