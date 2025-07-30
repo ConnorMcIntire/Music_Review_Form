@@ -128,13 +128,14 @@
       e.preventDefault();
 
       const data = {
-        title: form.title.value.trim(),
-        year: form.year.value.trim(),
-        genre: form.genre.value.trim(),
-        director: form.director.value.trim(),
-        rating: form.rating.value.trim(),
-        trailer_link: form.imdbLink.value.trim()
-      };
+  type: 'movie', // <-- This tells the backend to use the Movie sheet
+  title: form.title.value.trim(),
+  year: form.year.value.trim(),
+  genre: form.genre.value.trim(),
+  director: form.director.value.trim(),
+  rating: form.rating.value.trim(),
+  imdb_link: form.imdbLink.value.trim() // <-- Also rename to match backend
+};
 
       try {
         const res = await fetch('/api/review', {
