@@ -1,50 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Review Hub</title>
   <style>
     body {
-      font-family: sans-serif;
-      background: linear-gradient(to right, #9333ea, #3b82f6);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #1e3a8a, #3b82f6);
       color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
       margin: 0;
+      padding: 0;
     }
-    .container {
+
+    nav {
+      background: #111827;
+      padding: 1rem;
       text-align: center;
     }
+
+    nav a {
+      color: white;
+      margin: 0 1rem;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    .container {
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 2rem;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 500px;
+      margin: 3rem auto;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+      text-align: center;
+    }
+
     h1 {
       margin-bottom: 2rem;
+      font-size: 2rem;
     }
-    a {
+
+    a.button {
       display: inline-block;
       background: #10b981;
       color: white;
       padding: 1rem 2rem;
-      margin: 1rem;
+      margin: 1rem 0.5rem;
       border-radius: 12px;
       font-weight: bold;
       text-decoration: none;
-     
+      transition: background 0.3s ease;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     }
-    a:hover {
+
+    a.button:hover {
       background: #059669;
     }
   </style>
 </head>
-
 <body>
+
+
   <div class="container">
     <h1>Welcome to Review Hub</h1>
-    <a href="music.html">🎵 Music Reviews</a>
-    <a href="movie.html">🎬 Movie Reviews</a>
+    <a href="music.html" class="button">🎵 Music Reviews</a>
+    <a href="movie.html" class="button">🎬 Movie Reviews</a>
   </div>
-</body>
 
+</body>
 </html>
