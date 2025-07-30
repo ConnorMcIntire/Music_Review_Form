@@ -3,166 +3,48 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Submit Music Review</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Review Hub</title>
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(to right, #1e3a8a, #3b82f6);
+      font-family: sans-serif;
+      background: linear-gradient(to right, #9333ea, #3b82f6);
       color: white;
-      margin: 0;
-      padding: 0;
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
+      height: 100vh;
+      margin: 0;
     }
-
     .container {
-      background-color: rgba(0, 0, 0, 0.7);
-      padding: 2rem;
-      border-radius: 12px;
-      width: 100%;
-      max-width: 500px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-    }
-
-    h1 {
       text-align: center;
-      margin-bottom: 1.5rem;
-      font-size: 1.8rem;
     }
-
-    label {
-      display: block;
-      margin-top: 1rem;
-      font-weight: bold;
+    h1 {
+      margin-bottom: 2rem;
     }
-
-    input,
-    select {
-      width: 100%;
-      padding: 0.6rem;
-      margin-top: 0.4rem;
-      border: none;
-      border-radius: 6px;
-      font-size: 1rem;
-    }
-
-    button {
-      margin-top: 1.8rem;
-      width: 100%;
-      padding: 0.75rem;
+    a {
+      display: inline-block;
       background: #10b981;
       color: white;
-      font-size: 1rem;
+      padding: 1rem 2rem;
+      margin: 1rem;
+      border-radius: 12px;
       font-weight: bold;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.3s ease;
+      text-decoration: none;
+     
     }
-
-    button:hover {
+    a:hover {
       background: #059669;
-    }
-
-    #status {
-      text-align: center;
-      margin-top: 1rem;
-      font-weight: bold;
     }
   </style>
 </head>
 
 <body>
   <div class="container">
-    <h1>Submit a Music Review</h1>
-    <form id="reviewForm">
-      <label>Song:
-        <input type="text" name="song" required />
-      </label>
-      <label>Album:
-        <input type="text" name="album" />
-      </label>
-      <label>Artist:
-        <input type="text" name="artist" required />
-      </label>
-      <label>Feature(s) (comma-separated):
-        <input type="text" name="feature" />
-      </label>
-      <label>Rating (1-10):
-        <input type="number" name="rating" min="1" max="10" required />
-      </label>
-      <label>Spotify Link:
-        <input type="url" name="spotifyLink" placeholder="https://open.spotify.com/track/..." />
-      </label>
-      <button type="submit">Submit Review</button>
-    </form>
-    <p id="status"></p>
+    <h1>Welcome to Review Hub</h1>
+    <a href="music.html">🎵 Music Reviews</a>
+    <a href="movie.html">🎬 Movie Reviews</a>
   </div>
-
-  <script>
-    const form = document.getElementById('reviewForm');
-    const status = document.getElementById('status');
-
-    let keepAlbum = "";
-    let keepArtist = "";
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      const mainArtist = form.artist.value.trim();
-      const feature = form.feature.value.trim();
-
-      let artist = mainArtist;
-      if (feature) {
-        artist += ', ' + feature.split(',').map(f => f.trim()).join(', ');
-      }
-
-      const data = {
-        song: form.song.value.trim(),
-        album: form.album.value.trim(),
-        artist: artist,
-        rating: form.rating.value,
-        spotify_link: form.spotifyLink.value.trim()  // <-- Add spotify link here
-      };
-
-      try {
-        const res = await fetch('/api/review', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(data)
-        });
-
-        if (res.ok) {
-          status.textContent = "✅ Review submitted!";
-
-          const sameAlbum = confirm("Is the next song from the same album?");
-          if (sameAlbum) {
-            keepAlbum = form.album.value;
-            keepArtist = form.artist.value;
-          } else {
-            keepAlbum = "";
-            keepArtist = "";
-          }
-
-          form.reset();
-
-          // Re-fill album and artist if needed
-          form.album.value = keepAlbum;
-          form.artist.value = keepArtist;
-
-        } else {
-          status.textContent = "❌ Failed to submit review.";
-        }
-      } catch (err) {
-        status.textContent = "❌ Error: " + err.message;
-      }
-    });
-  </script>
 </body>
 
 </html>
