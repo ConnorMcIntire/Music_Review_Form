@@ -188,11 +188,11 @@
       e.preventDefault();
 
       const data = {
-        book_type: form.book_type.value,
         title: form.title.value.trim(),
         author: form.author.value.trim(),
         year: Number(form.year.value),
         genre: [form.genre1.value, form.genre2.value].filter(Boolean).join(', '),
+        book_type: form.book_type.value,
         series: form.series.value.trim(),
         number: Number(form.number.value),
         rating: Number(form.rating.value)
