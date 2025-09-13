@@ -113,9 +113,11 @@
       <label>Title:
         <input type="text" name="title" required />
       </label>
+
       <label>Author:
         <input type="text" name="author" required />
       </label>
+
       <label>Year Published:
         <input type="number" name="year" min="0" required />
       </label>
@@ -159,12 +161,15 @@
       <label>Series Name:
         <input type="text" name="series" />
       </label>
+
       <label>Number in Series:
         <input type="number" name="number" min="1" />
       </label>
+
       <label>Rating (1-10):
         <input type="number" name="rating" min="1" max="10" required />
       </label>
+
       <button type="submit">Submit Review</button>
     </form>
     <p id="status"></p>
@@ -177,19 +182,20 @@
     let keepAuthor = "";
     let keepSeriesNumber = "";
     let keepType = "";
+    let keepSeriesName = "";
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
       const data = {
-        book_type: form.type.value,
+        book_type: form.book_type.value,
         title: form.title.value.trim(),
         author: form.author.value.trim(),
-        year: form.year.value.trim(),
+        year: Number(form.year.value),
         genre: [form.genre1.value, form.genre2.value].filter(Boolean).join(', '),
         series: form.series.value.trim(),
-        number: form.number.value.trim(),
-        rating: form.rating.value.trim()
+        number: Number(form.number.value),
+        rating: Number(form.rating.value)
       };
 
       try {
@@ -206,19 +212,22 @@
           if (sameSeries) {
             keepAuthor = form.author.value;
             keepSeriesNumber = Number(form.number.value) + 1;
-            keepType = form.type.value;
+            keepType = form.book_type.value;
+            keepSeriesName = form.series.value;
           } else {
             keepAuthor = "";
             keepSeriesNumber = "";
             keepType = "";
+            keepSeriesName = "";
           }
 
           form.reset();
 
-          // Autofill author, series number, and type if same series
+          // Autofill author, series number, series name, and type if same series
           form.author.value = keepAuthor;
           form.number.value = keepSeriesNumber;
-          form.type.value = keepType;
+          form.book_type.value = keepType;
+          form.series.value = keepSeriesName;
 
         } else {
           status.textContent = "❌ Failed to submit review.";
