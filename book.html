@@ -2,199 +2,213 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Submit Book Review</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(to right, #1e3a8a, #3b82f6);
-      color: white;
-      margin: 0;
-      padding: 0;
-    }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Submit Book Review</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to right, #1e3a8a, #3b82f6);
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
 
-    nav {
-      background: #111827;
-      padding: 1rem;
-      text-align: center;
-    }
+        nav {
+            background: #111827;
+            padding: 1rem;
+            text-align: center;
+        }
 
-    nav a {
-      color: white;
-      margin: 0 1rem;
-      text-decoration: none;
-      font-weight: bold;
-    }
+        nav a {
+            color: white;
+            margin: 0 1rem;
+            text-decoration: none;
+            font-weight: bold;
+        }
 
-    nav a:hover {
-      text-decoration: underline;
-    }
+        nav a:hover {
+            text-decoration: underline;
+        }
 
-    .container {
-      background-color: rgba(0, 0, 0, 0.7);
-      padding: 2rem;
-      border-radius: 12px;
-      width: 100%;
-      max-width: 500px;
-      margin: 3rem auto;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-    }
+        .container {
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 2rem;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 500px;
+            margin: 3rem auto;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        }
 
-    h1 {
-      text-align: center;
-      margin-bottom: 1.5rem;
-      font-size: 1.8rem;
-    }
+        h1 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
 
-    label {
-      display: block;
-      margin-top: 1rem;
-      font-weight: bold;
-    }
+        label {
+            display: block;
+            margin-top: 1rem;
+            font-weight: bold;
+        }
 
-    input,
-    select {
-      width: 100%;
-      padding: 0.6rem;
-      margin-top: 0.4rem;
-      border: none;
-      border-radius: 6px;
-      font-size: 1rem;
-    }
+        input,
+        select {
+            width: 100%;
+            padding: 0.6rem;
+            margin-top: 0.4rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
 
-    button {
-      margin-top: 1.8rem;
-      width: 100%;
-      padding: 0.75rem;
-      background: #10b981;
-      color: white;
-      font-size: 1rem;
-      font-weight: bold;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
+        button {
+            margin-top: 1.8rem;
+            width: 100%;
+            padding: 0.75rem;
+            background: #10b981;
+            color: white;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
 
-    button:hover {
-      background: #059669;
-    }
+        button:hover {
+            background: #059669;
+        }
 
-    #status {
-      text-align: center;
-      margin-top: 1rem;
-      font-weight: bold;
-    }
-  </style>
+        #status {
+            text-align: center;
+            margin-top: 1rem;
+            font-weight: bold;
+        }
+    </style>
 </head>
 
 <body>
-  <nav>
-    <a href="music.html">🎵 Music</a>
-    <a href="movie.html">🎬 Movie</a>
-    <a href="book.html">📚 Books</a>
-  </nav>
+    <nav>
+        <a href="book.html" style="color:white;  text-decoration: none;">📚 Books</a>
+        <a href="music.html" style="color:white; margin-right: 1.5rem; text-decoration: none;">🎵 Music</a>
+        <a href="movie.html" style="color:white; margin-right: 1.5rem; text-decoration: none;">🎬 Movie</a>
+    </nav>
 
-  <div class="container">
-    <h1>Submit a Book Review</h1>
-    <form id="reviewForm">
-      <label>Title:
-        <input type="text" name="title" required />
-      </label>
-      <label>Author:
-        <input type="text" name="author" required />
-      </label>
-      <label>Year Published:
-        <input type="number" name="year" min="0" required />
-      </label>
-      <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-        <label style="flex: 1;">Primary Genre:
-          <select name="genre1" required>
-            <option value="" disabled selected>Select genre</option>
-            <option value="Fantasy">Fantasy</option>
-            <option value="Science Fiction">Science Fiction</option>
-            <option value="Romance">Romance</option>
-            <option value="Mystery">Mystery</option>
-            <option value="Thriller">Thriller</option>
-            <option value="Horror">Horror</option>
-            <option value="Historical">Historical</option>
-            <option value="Nonfiction">Nonfiction</option>
-            <option value="Biography">Biography</option>
-            <option value="Self-Help">Self-Help</option>
-            <option value="Classic">Classic</option>
-          </select>
-        </label>
+    <div class="container">
+        <h1>Submit a Book Review</h1>
+        <form id="reviewForm">
+            <label>Title:
+                <input type="text" name="title" required />
+            </label>
+            <label>Author:
+                <input type="text" name="author" required />
+            </label>
+            <label>Year Published:
+                <input type="number" name="year" min="0" required />
+            </label>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <label style="flex: 1;">Primary Genre:
+                    <select name="genre1" required>
+                        <option value="" disabled selected>Select genre</option>
+                        <option value="Fantasy">Fantasy</option>
+                        <option value="Science Fiction">Science Fiction</option>
+                        <option value="Romance">Romance</option>
+                        <option value="Mystery">Mystery</option>
+                        <option value="Thriller">Thriller</option>
+                        <option value="Horror">Horror</option>
+                        <option value="Historical">Historical</option>
+                        <option value="Nonfiction">Nonfiction</option>
+                        <option value="Biography">Biography</option>
+                        <option value="Self-Help">Self-Help</option>
+                        <option value="Classic">Classic</option>
+                    </select>
+                </label>
 
-        <label style="flex: 1;">Secondary Genre (optional):
-          <select name="genre2">
-            <option value="" selected>None</option>
-            <option value="Fantasy">Fantasy</option>
-            <option value="Science Fiction">Science Fiction</option>
-            <option value="Romance">Romance</option>
-            <option value="Mystery">Mystery</option>
-            <option value="Thriller">Thriller</option>
-            <option value="Horror">Horror</option>
-            <option value="Historical">Historical</option>
-            <option value="Nonfiction">Nonfiction</option>
-            <option value="Biography">Biography</option>
-            <option value="Self-Help">Self-Help</option>
-            <option value="Classic">Classic</option>
-          </select>
-        </label>
-      </div>
-      <label>Series Name:
-        <input type="text" name="series" />
-      </label>
-      <label>Number in Series:
-        <input type="number" name="number" min="1" />
-      </label>
-      <label>Rating (1-10):
-        <input type="number" name="rating" min="1" max="10" required />
-      </label>
-      <button type="submit">Submit Review</button>
-    </form>
-    <p id="status"></p>
-  </div>
+                <label style="flex: 1;">Secondary Genre (optional):
+                    <select name="genre2">
+                        <option value="" selected>None</option>
+                        <option value="Fantasy">Fantasy</option>
+                        <option value="Science Fiction">Science Fiction</option>
+                        <option value="Romance">Romance</option>
+                        <option value="Mystery">Mystery</option>
+                        <option value="Thriller">Thriller</option>
+                        <option value="Horror">Horror</option>
+                        <option value="Historical">Historical</option>
+                        <option value="Nonfiction">Nonfiction</option>
+                        <option value="Biography">Biography</option>
+                        <option value="Self-Help">Self-Help</option>
+                        <option value="Classic">Classic</option>
+                    </select>
+                </label>
+            </div>
 
-  <script>
-    const form = document.getElementById('reviewForm');
-    const status = document.getElementById('status');
+            <label>Series Name:
+                <input type="text" name="series" />
+            </label>
+            <label>Number in Series:
+                <input type="number" name="number" min="1" />
+            </label>
+            <label>Rating (1-10):
+                <input type="number" name="rating" min="1" max="10" required />
+            </label>
+            <button type="submit">Submit Review</button>
+        </form>
+        <p id="status"></p>
+    </div>
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
+    <script>
+        const form = document.getElementById('reviewForm');
+        const status = document.getElementById('status');
 
-      const data = {
-        type: 'book', 
-        title: form.title.value.trim(),
-        author: form.author.value.trim(),
-        year: form.year.value.trim(),
-        genre: [form.genre1.value, form.genre2.value].filter(Boolean).join(', '),
-        series: form.series.value.trim(),
-        number: form.number.value.trim(),
-        rating: form.rating.value.trim()
-      };
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
 
-      try {
-        const res = await fetch('/api/review', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(data)
+            let authorValue = form.author.value.trim();
+            let seriesNumber = form.number.value.trim();
+            const seriesName = form.series.value.trim();
+
+            // Show popup if Series Name is filled
+            if (seriesName) {
+                const sameSeries = confirm("Is this book part of the same series?");
+                if (sameSeries) {
+                    // Preserve author and increment series number
+                    seriesNumber = seriesNumber ? String(Number(seriesNumber) + 1) : "1";
+                }
+            }
+
+            const data = {
+                type: 'book',
+                title: form.title.value.trim(),
+                author: authorValue,
+                year: form.year.value.trim(),
+                genre: [form.genre1.value, form.genre2.value].filter(Boolean).join(', '),
+                series: seriesName,
+                number: seriesNumber,
+                rating: form.rating.value.trim()
+            };
+
+            try {
+                const res = await fetch('/api/review', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (res.ok) {
+                    status.textContent = "✅ Review submitted!";
+                    form.reset();
+                } else {
+                    status.textContent = "❌ Failed to submit review.";
+                }
+            } catch (err) {
+                status.textContent = "❌ Error: " + err.message;
+            }
         });
-
-        if (res.ok) {
-          status.textContent = "✅ Review submitted!";
-          form.reset();
-        } else {
-          status.textContent = "❌ Failed to submit review.";
-        }
-      } catch (err) {
-        status.textContent = "❌ Error: " + err.message;
-      }
-    });
-  </script>
+    </script>
 </body>
 
 </html>
