@@ -99,6 +99,17 @@
   <div class="container">
     <h1>Submit a Book Review</h1>
     <form id="reviewForm">
+      <label>Book Type:
+        <select name="type" required>
+          <option value="" disabled selected>Select type</option>
+          <option value="Novel">Novel</option>
+          <option value="Comic">Comic</option>
+          <option value="Graphic Novel">Graphic Novel</option>
+          <option value="Manga">Manga</option>
+          <option value="Short Story">Short Story</option>
+        </select>
+      </label>
+
       <label>Title:
         <input type="text" name="title" required />
       </label>
@@ -108,6 +119,7 @@
       <label>Year Published:
         <input type="number" name="year" min="0" required />
       </label>
+
       <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
         <label style="flex: 1;">Primary Genre:
           <select name="genre1" required>
@@ -143,6 +155,7 @@
           </select>
         </label>
       </div>
+
       <label>Series Name:
         <input type="text" name="series" />
       </label>
@@ -162,21 +175,22 @@
     const status = document.getElementById('status');
 
     let keepAuthor = "";
-    let keepSeries = "";
-    let keepNumber = "";
+    let keepSeriesNumber = "";
+    let keepType = "";
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      const title = form.title.value.trim();
-      const author = form.author.value.trim();
-      const year = form.year.value.trim();
-      const genre = [form.genre1.value, form.genre2.value].filter(Boolean).join(', ');
-      let series = form.series.value.trim();
-      let number = form.number.value.trim();
-      const rating = form.rating.value.trim();
-
-      const data = { type: 'book', title, author, year, genre, series, number, rating };
+      const data = {
+        book_type: form.type.value,
+        title: form.title.value.trim(),
+        author: form.author.value.trim(),
+        year: form.year.value.trim(),
+        genre: [form.genre1.value, form.genre2.value].filter(Boolean).join(', '),
+        series: form.series.value.trim(),
+        number: form.number.value.trim(),
+        rating: form.rating.value.trim()
+      };
 
       try {
         const res = await fetch('/api/review', {
@@ -188,26 +202,23 @@
         if (res.ok) {
           status.textContent = "✅ Review submitted!";
 
-          // Ask if next book is from same series
-          if (series) {
-            const sameSeries = confirm("Is the next book from the same series?");
-            if (sameSeries) {
-              keepAuthor = author;
-              keepSeries = series;
-              keepNumber = number ? String(Number(number) + 1) : "1";
-            } else {
-              keepAuthor = "";
-              keepSeries = "";
-              keepNumber = "";
-            }
+          const sameSeries = confirm("Is the next book from the same series?");
+          if (sameSeries) {
+            keepAuthor = form.author.value;
+            keepSeriesNumber = Number(form.number.value) + 1;
+            keepType = form.type.value;
+          } else {
+            keepAuthor = "";
+            keepSeriesNumber = "";
+            keepType = "";
           }
 
           form.reset();
 
-          // Autofill author, series, number if needed
+          // Autofill author, series number, and type if same series
           form.author.value = keepAuthor;
-          form.series.value = keepSeries;
-          form.number.value = keepNumber;
+          form.number.value = keepSeriesNumber;
+          form.type.value = keepType;
 
         } else {
           status.textContent = "❌ Failed to submit review.";
@@ -218,5 +229,4 @@
     });
   </script>
 </body>
-
 </html>
