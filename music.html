@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Submit Music Reviews</title>
+  <title>Submit Music Album</title>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -87,29 +87,43 @@
     }
 
     .song-card {
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.05);
       padding: 1rem;
       border-radius: 8px;
       margin-bottom: 1rem;
       position: relative;
     }
 
-    .remove-song {
+    .remove-btn {
       position: absolute;
-      top: 0.5rem;
-      right: 0.5rem;
+      top: 8px;
+      right: 8px;
       background: #ef4444;
       border: none;
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
       color: white;
-      font-weight: bold;
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
       cursor: pointer;
     }
 
-    .remove-song:hover {
+    .remove-btn:hover {
       background: #dc2626;
+    }
+
+    .add-song-btn {
+      background: #3b82f6;
+      border: none;
+      color: white;
+      padding: 0.6rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-bottom: 1rem;
+      width: 100%;
+      font-weight: bold;
+    }
+
+    .add-song-btn:hover {
+      background: #2563eb;
     }
   </style>
 </head>
@@ -123,20 +137,19 @@
   </nav>
 
   <div class="container">
-    <h1>Submit Music Album</h1>
+    <h1>Submit a Music Album</h1>
     <form id="reviewForm">
       <label>Album Name:
         <input type="text" name="album" required />
       </label>
-      <label>Main Artist:
+      <label>Artist:
         <input type="text" name="artist" required />
       </label>
 
-      <div id="songsContainer">
-        <!-- Individual song cards will appear here -->
-      </div>
+      <button type="button" class="add-song-btn" id="addSongBtn">+ Add Song</button>
 
-      <button type="button" id="addSongBtn">➕ Add Song</button>
+      <div id="songsContainer"></div>
+
       <button type="submit">Submit Album</button>
     </form>
     <p id="status"></p>
@@ -148,38 +161,37 @@
     const addSongBtn = document.getElementById('addSongBtn');
     const status = document.getElementById('status');
 
-    // Function to create a new song input card
+    let keepAlbum = "";
+    let keepArtist = "";
+
     function createSongCard() {
       const card = document.createElement('div');
       card.className = 'song-card';
       card.innerHTML = `
-        <button type="button" class="remove-song">×</button>
+        <button type="button" class="remove-btn">X</button>
         <label>Song Name:
           <input type="text" name="song" required />
         </label>
-        <label>Spotify Link:
-          <input type="url" name="spotifyLink" placeholder="https://open.spotify.com/track/..." />
+        <label>Features (optional, comma-separated):
+          <input type="text" name="feature" />
         </label>
         <label>Rating (1-10):
           <input type="number" name="rating" min="1" max="10" required />
         </label>
-        <label>Feature(s) (comma-separated):
-          <input type="text" name="feature" />
+        <label>Spotify Link:
+          <input type="url" name="spotifyLink" placeholder="https://open.spotify.com/track/..." />
         </label>
       `;
-      // Remove button
-      card.querySelector('.remove-song').addEventListener('click', () => {
-        card.remove();
-      });
+      card.querySelector('.remove-btn').addEventListener('click', () => card.remove());
       return card;
     }
-
-    // Add initial song card
-    songsContainer.appendChild(createSongCard());
 
     addSongBtn.addEventListener('click', () => {
       songsContainer.appendChild(createSongCard());
     });
+
+    // Add first song by default
+    songsContainer.appendChild(createSongCard());
 
     reviewForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -189,13 +201,17 @@
 
       const songs = songCards.map(card => {
         const songName = card.querySelector('input[name="song"]').value.trim();
-        const spotifyLink = card.querySelector('input[name="spotifyLink"]').value.trim();
-        const rating = card.querySelector('input[name="rating"]').value.trim();
         const features = card.querySelector('input[name="feature"]').value.trim();
+        const rating = card.querySelector('input[name="rating"]').value.trim();
+        const spotifyLink = card.querySelector('input[name="spotifyLink"]').value.trim();
+
+        if (!songName || !rating) return null;
+
         let artist = mainArtist;
         if (features) {
           artist += ', ' + features.split(',').map(f => f.trim()).join(', ');
         }
+
         return {
           album: albumName,
           artist: artist,
@@ -203,7 +219,12 @@
           rating: rating,
           spotify_link: spotifyLink
         };
-      });
+      }).filter(Boolean);
+
+      if (!songs.length) {
+        status.textContent = "❌ Please fill in at least one song with name and rating!";
+        return;
+      }
 
       try {
         const res = await fetch('/api/review', {
@@ -226,5 +247,4 @@
     });
   </script>
 </body>
-
 </html>
