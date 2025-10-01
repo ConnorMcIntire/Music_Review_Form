@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Submit Music Review</title>
+  <title>Submit Music Album</title>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -80,44 +80,40 @@
       background: #059669;
     }
 
-    #status {
-      text-align: center;
-      margin-top: 1rem;
-      font-weight: bold;
-    }
-
-    .song-card {
-      background: rgba(255, 255, 255, 0.05);
-      padding: 1rem;
-      margin-top: 1rem;
-      border-radius: 8px;
-      position: relative;
-    }
-
-    .song-card button.remove-song {
-      position: absolute;
-      top: 0.5rem;
-      right: 0.5rem;
-      background: #ef4444;
-      border: none;
-      padding: 0.3rem 0.6rem;
-      border-radius: 4px;
-      cursor: pointer;
-      color: white;
-      font-weight: bold;
-    }
-
-    .song-card button.remove-song:hover {
-      background: #dc2626;
-    }
-
     .add-song {
-      margin-top: 1rem;
       background: #3b82f6;
+      margin-top: 1rem;
     }
 
     .add-song:hover {
       background: #2563eb;
+    }
+
+    .song-block {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+      position: relative;
+    }
+
+    .remove-song {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      background: red;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+    }
+
+    #status {
+      text-align: center;
+      margin-top: 1rem;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -131,17 +127,17 @@
   </nav>
 
   <div class="container">
-    <h1>Submit a Music Album</h1>
-
-    <label>Album:
-      <input type="text" name="album" required />
-    </label>
-    <label>Artist:
-      <input type="text" name="artist" required />
-    </label>
-
+    <h1>Submit Music Album</h1>
     <form id="reviewForm">
+      <label>Album Name:
+        <input type="text" name="album" required />
+      </label>
+      <label>Artist Name:
+        <input type="text" name="artist" required />
+      </label>
+
       <div id="songsContainer"></div>
+
       <button type="button" class="add-song" id="addSongBtn">➕ Add Song</button>
       <button type="submit">Submit Album</button>
     </form>
@@ -154,69 +150,76 @@
     const addSongBtn = document.getElementById('addSongBtn');
     const status = document.getElementById('status');
 
-    function createSongCard(songData = {}) {
+    function createSongBlock() {
       const div = document.createElement('div');
-      div.className = 'song-card';
+      div.className = 'song-block';
+
       div.innerHTML = `
-        <button type="button" class="remove-song">✖</button>
-        <label>Song:
-          <input type="text" name="song" value="${songData.song || ''}" required />
-        </label>
-        <label>Feature(s) (comma-separated):
-          <input type="text" name="feature" value="${songData.feature || ''}" />
-        </label>
-        <label>Rating (1-10):
-          <input type="number" name="rating" min="1" max="10" value="${songData.rating || ''}" required />
+        <button type="button" class="remove-song">×</button>
+        <label>Song Name:
+          <input type="text" class="song-name" required />
         </label>
         <label>Spotify Link:
-          <input type="url" name="spotifyLink" value="${songData.spotify_link || ''}" placeholder="https://open.spotify.com/track/..." />
+          <input type="url" class="song-link" placeholder="https://open.spotify.com/track/..." />
+        </label>
+        <label>Rating (1-10):
+          <input type="number" class="song-rating" min="1" max="10" required />
+        </label>
+        <label>Features (comma-separated):
+          <input type="text" class="song-features" />
         </label>
       `;
+
+      // Remove song button
       div.querySelector('.remove-song').addEventListener('click', () => {
         div.remove();
       });
-      return div;
+
+      songsContainer.appendChild(div);
     }
 
     addSongBtn.addEventListener('click', () => {
-      songsContainer.appendChild(createSongCard());
+      createSongBlock();
     });
-
-    // Add first song card by default
-    songsContainer.appendChild(createSongCard());
 
     reviewForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const albumName = reviewForm.album.value.trim();
-      const mainArtist = reviewForm.artist.value.trim();
-      const songCards = Array.from(songsContainer.children);
 
-      const songs = songCards.map(card => {
-        const songName = card.querySelector('input[name="song"]').value.trim();
-        const features = card.querySelector('input[name="feature"]').value.trim();
-        const rating = card.querySelector('input[name="rating"]').value.trim();
-        const spotifyLink = card.querySelector('input[name="spotifyLink"]').value.trim();
+      const album = reviewForm.album.value.trim();
+      const artist = reviewForm.artist.value.trim();
+      const songs = [];
 
-        if (!songName || !rating) return null;
-
-        let artist = mainArtist;
-        if (features) {
-          artist += ', ' + features.split(',').map(f => f.trim()).join(', ');
-        }
-
-        return {
-          album: albumName,
-          artist: artist,
-          song: songName,
-          rating: rating,
-          spotify_link: spotifyLink
-        };
-      }).filter(Boolean);
-
-      if (!songs.length) {
-        status.textContent = "❌ Please fill in at least one song with name and rating!";
+      const songBlocks = songsContainer.querySelectorAll('.song-block');
+      if (songBlocks.length === 0) {
+        status.textContent = '❌ Please add at least one song.';
         return;
       }
+
+      songBlocks.forEach(block => {
+        const name = block.querySelector('.song-name').value.trim();
+        const link = block.querySelector('.song-link').value.trim();
+        const rating = block.querySelector('.song-rating').value.trim();
+        const features = block.querySelector('.song-features').value.trim();
+
+        if (!name || !rating) return; // skip incomplete
+
+        const songArtist = features ? artist + ', ' + features.split(',').map(f => f.trim()).join(', ') : artist;
+
+        songs.push({
+          album,
+          artist: songArtist,
+          song: name,
+          rating,
+          spotify_link: link
+        });
+      });
+
+      if (songs.length === 0) {
+        status.textContent = '❌ Please fill out all required song fields.';
+        return;
+      }
+
+      console.log('Submitting songs:', songs);
 
       try {
         const res = await fetch('/api/review', {
@@ -226,10 +229,9 @@
         });
 
         if (res.ok) {
-          status.textContent = '✅ Album submitted!';
+          status.textContent = '✅ Album submitted successfully!';
           reviewForm.reset();
           songsContainer.innerHTML = '';
-          songsContainer.appendChild(createSongCard());
         } else {
           status.textContent = '❌ Failed to submit album.';
         }
@@ -237,7 +239,9 @@
         status.textContent = '❌ Error: ' + err.message;
       }
     });
+
+    // Start with one song by default
+    createSongBlock();
   </script>
 </body>
-
 </html>
