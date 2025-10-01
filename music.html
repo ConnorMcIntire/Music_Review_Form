@@ -36,7 +36,7 @@
       padding: 2rem;
       border-radius: 12px;
       width: 100%;
-      max-width: 500px;
+      max-width: 600px;
       margin: 3rem auto;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
     }
@@ -65,8 +65,7 @@
 
     button {
       margin-top: 1.8rem;
-      width: 100%;
-      padding: 0.75rem;
+      padding: 0.75rem 1rem;
       background: #10b981;
       color: white;
       font-size: 1rem;
@@ -81,6 +80,13 @@
       background: #059669;
     }
 
+    .song-entry {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+    }
+
     #status {
       text-align: center;
       margin-top: 1rem;
@@ -90,91 +96,109 @@
 </head>
 
 <body>
-  <nav style="background: #111827; padding: 1rem; text-align: center;">
-    <a href="book.html" style="color:white; margin-right: 1.5rem; text-decoration: none;">📚 Books</a>
-    <a href="music.html" style="color:white; margin-right: 1.5rem; text-decoration: none;">🎵 Music</a>
-    <a href="movie.html" style="color:white; text-decoration: none;">🎬 Movie</a>
-    <a href="game.html" style="color:white; margin-right: 1.5rem; text-decoration: none;">🎮 Games</a>
+  <nav>
+    <a href="book.html">📚 Books</a>
+    <a href="music.html">🎵 Music</a>
+    <a href="movie.html">🎬 Movie</a>
+    <a href="game.html">🎮 Games</a>
   </nav>
+
   <div class="container">
-    <h1>Submit a Music Review</h1>
-    <form id="reviewForm">
-      <label>Song:
-        <input type="text" name="song" required />
-      </label>
+    <h1>Submit an Album Review</h1>
+    <form id="albumForm">
       <label>Album:
-        <input type="text" name="album" />
+        <input type="text" name="album" required />
       </label>
       <label>Artist:
         <input type="text" name="artist" required />
       </label>
-      <label>Feature(s) (comma-separated):
-        <input type="text" name="feature" />
-      </label>
-      <label>Rating (1-10):
-        <input type="number" name="rating" min="1" max="10" required />
-      </label>
-      <label>Spotify Link:
-        <input type="url" name="spotifyLink" placeholder="https://open.spotify.com/track/..." />
-      </label>
-      <button type="submit">Submit Review</button>
+
+      <h2 style="margin-top: 1.5rem;">Songs</h2>
+      <div id="songsContainer"></div>
+
+      <button type="button" id="addSongBtn">➕ Add Song</button>
+      <button type="submit">Submit Album Review</button>
     </form>
     <p id="status"></p>
   </div>
 
   <script>
-    const form = document.getElementById('reviewForm');
+    const albumForm = document.getElementById('albumForm');
+    const songsContainer = document.getElementById('songsContainer');
+    const addSongBtn = document.getElementById('addSongBtn');
     const status = document.getElementById('status');
 
-    let keepAlbum = "";
-    let keepArtist = "";
+    // Add new song input group
+    function addSongEntry() {
+      const div = document.createElement('div');
+      div.classList.add('song-entry');
 
-    form.addEventListener('submit', async (e) => {
+      div.innerHTML = `
+        <label>Song Name:
+          <input type="text" name="songName" required />
+        </label>
+        <label>Feature(s) (comma-separated):
+          <input type="text" name="features" placeholder="e.g., Artist1, Artist2" />
+        </label>
+        <label>Spotify Link:
+          <input type="url" name="spotifyLink" placeholder="https://open.spotify.com/track/..." />
+        </label>
+        <label>Rating (1-10):
+          <input type="number" name="rating" min="1" max="10" required />
+        </label>
+        <button type="button" class="removeBtn" style="margin-top:0.5rem; background:#ef4444;">❌ Remove Song</button>
+      `;
+
+      // Hook up remove button
+      div.querySelector('.removeBtn').addEventListener('click', () => {
+        div.remove();
+      });
+
+      songsContainer.appendChild(div);
+    }
+
+    addSongBtn.addEventListener('click', addSongEntry);
+
+    albumForm.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      const mainArtist = form.artist.value.trim();
-      const feature = form.feature.value.trim();
+      const album = albumForm.album.value.trim();
+      const artist = albumForm.artist.value.trim();
 
-      let artist = mainArtist;
-      if (feature) {
-        artist += ', ' + feature.split(',').map(f => f.trim()).join(', ');
-      }
+      const songs = [];
+      songsContainer.querySelectorAll('.song-entry').forEach(entry => {
+        const songName = entry.querySelector('input[name="songName"]').value.trim();
+        const features = entry.querySelector('input[name="features"]').value.trim();
+        const spotifyLink = entry.querySelector('input[name="spotifyLink"]').value.trim();
+        const rating = entry.querySelector('input[name="rating"]').value.trim();
 
-      const data = {
-        song: form.song.value.trim(),
-        album: form.album.value.trim(),
-        artist: artist,
-        rating: form.rating.value,
-        spotify_link: form.spotifyLink.value.trim()  // <-- Add spotify link here
+        if (songName) {
+          songs.push({
+            song: songName,
+            features: features ? features.split(',').map(f => f.trim()) : [],
+            spotify_link: spotifyLink,
+            rating
+          });
+        }
+      });
+
+      const payload = {
+        album,
+        artist,
+        songs
       };
 
       try {
-        const res = await fetch('/api/review', {
+        const res = await fetch('/api/albumReview', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(data)
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
         });
 
         if (res.ok) {
-          status.textContent = "✅ Review submitted!";
-
-          const sameAlbum = confirm("Is the next song from the same album?");
-          if (sameAlbum) {
-            keepAlbum = form.album.value;
-            keepArtist = form.artist.value;
-          } else {
-            keepAlbum = "";
-            keepArtist = "";
-          }
-
-          form.reset();
-
-          // Re-fill album and artist if needed
-          form.album.value = keepAlbum;
-          form.artist.value = keepArtist;
-
+          status.textContent = "✅ Album review submitted!";
+          albumForm.reset();
+          songsContainer.innerHTML = "";
         } else {
           status.textContent = "❌ Failed to submit review.";
         }
