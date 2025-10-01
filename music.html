@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Submit Music Album</title>
+  <title>Submit Music Review</title>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -53,7 +52,7 @@
       font-weight: bold;
     }
 
-    input {
+    input, select {
       width: 100%;
       padding: 0.6rem;
       margin-top: 0.4rem;
@@ -80,44 +79,24 @@
       background: #059669;
     }
 
-    .add-song {
-      background: #3b82f6;
-      margin-top: 1rem;
-    }
-
-    .add-song:hover {
-      background: #2563eb;
-    }
-
-    .song-block {
-      background: rgba(255, 255, 255, 0.1);
-      padding: 1rem;
-      border-radius: 8px;
-      margin-top: 1rem;
-      position: relative;
-    }
-
-    .remove-song {
-      position: absolute;
-      top: 0.5rem;
-      right: 0.5rem;
-      background: red;
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
-      cursor: pointer;
-    }
-
     #status {
       text-align: center;
       margin-top: 1rem;
       font-weight: bold;
     }
+
+    .song-block {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 1rem;
+      margin-top: 1rem;
+      border-radius: 8px;
+    }
+
+    .song-block h3 {
+      margin: 0 0 0.5rem 0;
+    }
   </style>
 </head>
-
 <body>
   <nav>
     <a href="book.html">📚 Books</a>
@@ -127,18 +106,18 @@
   </nav>
 
   <div class="container">
-    <h1>Submit Music Album</h1>
+    <h1>Submit a Music Album</h1>
     <form id="reviewForm">
-      <label>Album Name:
+      <label>Album:
         <input type="text" name="album" required />
       </label>
-      <label>Artist Name:
+      <label>Artist:
         <input type="text" name="artist" required />
       </label>
 
       <div id="songsContainer"></div>
 
-      <button type="button" class="add-song" id="addSongBtn">➕ Add Song</button>
+      <button type="button" id="addSong">➕ Add Song</button>
       <button type="submit">Submit Album</button>
     </form>
     <p id="status"></p>
@@ -147,15 +126,15 @@
   <script>
     const reviewForm = document.getElementById('reviewForm');
     const songsContainer = document.getElementById('songsContainer');
-    const addSongBtn = document.getElementById('addSongBtn');
+    const addSongBtn = document.getElementById('addSong');
     const status = document.getElementById('status');
 
+    // Function to create a song block
     function createSongBlock() {
       const div = document.createElement('div');
-      div.className = 'song-block';
-
+      div.classList.add('song-block');
       div.innerHTML = `
-        <button type="button" class="remove-song">×</button>
+        <h3>Song</h3>
         <label>Song Name:
           <input type="text" class="song-name" required />
         </label>
@@ -165,18 +144,15 @@
         <label>Rating (1-10):
           <input type="number" class="song-rating" min="1" max="10" required />
         </label>
-        <label>Features (comma-separated):
+        <label>Feature(s) (comma-separated):
           <input type="text" class="song-features" />
         </label>
       `;
-
-      // Remove song button
-      div.querySelector('.remove-song').addEventListener('click', () => {
-        div.remove();
-      });
-
       songsContainer.appendChild(div);
     }
+
+    // Start with one song block
+    createSongBlock();
 
     addSongBtn.addEventListener('click', () => {
       createSongBlock();
@@ -203,7 +179,9 @@
 
         if (!name || !rating) return; // skip incomplete
 
-        const songArtist = features ? artist + ', ' + features.split(',').map(f => f.trim()).join(', ') : artist;
+        const songArtist = features 
+          ? artist + ', ' + features.split(',').map(f => f.trim()).join(', ') 
+          : artist;
 
         songs.push({
           album,
@@ -219,29 +197,29 @@
         return;
       }
 
-      console.log('Submitting songs:', songs);
-
       try {
-        const res = await fetch('/api/review', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ songs })
-        });
+        for (const song of songs) {
+          const res = await fetch('/api/review', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(song)
+          });
 
-        if (res.ok) {
-          status.textContent = '✅ Album submitted successfully!';
-          reviewForm.reset();
-          songsContainer.innerHTML = '';
-        } else {
-          status.textContent = '❌ Failed to submit album.';
+          if (!res.ok) {
+            status.textContent = "❌ Failed to submit one of the songs.";
+            return;
+          }
         }
+
+        status.textContent = '✅ Album submitted successfully!';
+        reviewForm.reset();
+        songsContainer.innerHTML = '';
+        createSongBlock(); // reset with one empty song
+
       } catch (err) {
         status.textContent = '❌ Error: ' + err.message;
       }
     });
-
-    // Start with one song by default
-    createSongBlock();
   </script>
 </body>
 </html>
