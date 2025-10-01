@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Submit Music Album</title>
+  <title>Submit Music Review</title>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -89,40 +89,34 @@
     .song-card {
       background: rgba(255, 255, 255, 0.05);
       padding: 1rem;
+      margin-top: 1rem;
       border-radius: 8px;
-      margin-bottom: 1rem;
       position: relative;
     }
 
-    .remove-btn {
+    .song-card button.remove-song {
       position: absolute;
-      top: 8px;
-      right: 8px;
+      top: 0.5rem;
+      right: 0.5rem;
       background: #ef4444;
       border: none;
-      color: white;
       padding: 0.3rem 0.6rem;
-      border-radius: 6px;
+      border-radius: 4px;
       cursor: pointer;
-    }
-
-    .remove-btn:hover {
-      background: #dc2626;
-    }
-
-    .add-song-btn {
-      background: #3b82f6;
-      border: none;
       color: white;
-      padding: 0.6rem 1rem;
-      border-radius: 6px;
-      cursor: pointer;
-      margin-bottom: 1rem;
-      width: 100%;
       font-weight: bold;
     }
 
-    .add-song-btn:hover {
+    .song-card button.remove-song:hover {
+      background: #dc2626;
+    }
+
+    .add-song {
+      margin-top: 1rem;
+      background: #3b82f6;
+    }
+
+    .add-song:hover {
       background: #2563eb;
     }
   </style>
@@ -138,18 +132,17 @@
 
   <div class="container">
     <h1>Submit a Music Album</h1>
+
+    <label>Album:
+      <input type="text" name="album" required />
+    </label>
+    <label>Artist:
+      <input type="text" name="artist" required />
+    </label>
+
     <form id="reviewForm">
-      <label>Album Name:
-        <input type="text" name="album" required />
-      </label>
-      <label>Artist:
-        <input type="text" name="artist" required />
-      </label>
-
-      <button type="button" class="add-song-btn" id="addSongBtn">+ Add Song</button>
-
       <div id="songsContainer"></div>
-
+      <button type="button" class="add-song" id="addSongBtn">➕ Add Song</button>
       <button type="submit">Submit Album</button>
     </form>
     <p id="status"></p>
@@ -161,36 +154,35 @@
     const addSongBtn = document.getElementById('addSongBtn');
     const status = document.getElementById('status');
 
-    let keepAlbum = "";
-    let keepArtist = "";
-
-    function createSongCard() {
-      const card = document.createElement('div');
-      card.className = 'song-card';
-      card.innerHTML = `
-        <button type="button" class="remove-btn">X</button>
-        <label>Song Name:
-          <input type="text" name="song" required />
+    function createSongCard(songData = {}) {
+      const div = document.createElement('div');
+      div.className = 'song-card';
+      div.innerHTML = `
+        <button type="button" class="remove-song">✖</button>
+        <label>Song:
+          <input type="text" name="song" value="${songData.song || ''}" required />
         </label>
-        <label>Features (optional, comma-separated):
-          <input type="text" name="feature" />
+        <label>Feature(s) (comma-separated):
+          <input type="text" name="feature" value="${songData.feature || ''}" />
         </label>
         <label>Rating (1-10):
-          <input type="number" name="rating" min="1" max="10" required />
+          <input type="number" name="rating" min="1" max="10" value="${songData.rating || ''}" required />
         </label>
         <label>Spotify Link:
-          <input type="url" name="spotifyLink" placeholder="https://open.spotify.com/track/..." />
+          <input type="url" name="spotifyLink" value="${songData.spotify_link || ''}" placeholder="https://open.spotify.com/track/..." />
         </label>
       `;
-      card.querySelector('.remove-btn').addEventListener('click', () => card.remove());
-      return card;
+      div.querySelector('.remove-song').addEventListener('click', () => {
+        div.remove();
+      });
+      return div;
     }
 
     addSongBtn.addEventListener('click', () => {
       songsContainer.appendChild(createSongCard());
     });
 
-    // Add first song by default
+    // Add first song card by default
     songsContainer.appendChild(createSongCard());
 
     reviewForm.addEventListener('submit', async (e) => {
@@ -247,4 +239,5 @@
     });
   </script>
 </body>
+
 </html>
