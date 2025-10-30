@@ -141,109 +141,103 @@
   </div>
 
   <script>
-    const reviewForm = document.getElementById('reviewForm');
-    const songsContainer = document.getElementById('songsContainer');
-    const addSongBtn = document.getElementById('addSong');
-    const status = document.getElementById('status');
+  const reviewForm = document.getElementById('reviewForm');
+  const songsContainer = document.getElementById('songsContainer');
+  const addSongBtn = document.getElementById('addSong');
+  const status = document.getElementById('status');
 
-    // Function to create a song block
-    function createSongBlock() {
-      const div = document.createElement('div');
-      div.classList.add('song-block');
-      div.innerHTML = `
-        <h3>Song</h3>
-        <label>Song Name:
-          <input type="text" class="song-name" required />
-        </label>
-        <label>Spotify Link:
-          <input type="url" class="song-link" placeholder="https://open.spotify.com/track/..." />
-        </label>
-        <label>Rating (1-10):
-          <input type="number" class="song-rating" min="1" max="10" required />
-        </label>
-        <label>Feature(s) (comma-separated):
-          <input type="text" class="song-features" />
-        </label>
-        <button type="button" class="remove-song">✖ Remove</button>
-      `;
+  // Function to create a song block
+  function createSongBlock() {
+    const div = document.createElement('div');
+    div.classList.add('song-block');
+    div.innerHTML = `
+      <h3>Song</h3>
+      <label>Song Name:
+        <input type="text" class="song-name" required />
+      </label>
+      <label>Spotify Link:
+        <input type="url" class="song-link" placeholder="https://open.spotify.com/track/..." />
+      </label>
+      <label>Rating (1-10):
+        <input type="number" class="song-rating" min="1" max="10" required />
+      </label>
+      <label>Feature(s) (comma-separated):
+        <input type="text" class="song-features" />
+      </label>
+      <button type="button" class="remove-song">✖ Remove</button>
+    `;
 
-      // Attach remove functionality
-      div.querySelector('.remove-song').addEventListener('click', () => {
-        div.remove();
-      });
+    div.querySelector('.remove-song').addEventListener('click', () => div.remove());
+    songsContainer.appendChild(div);
+  }
 
-      songsContainer.appendChild(div);
+  // Start with one song block
+  createSongBlock();
+
+  addSongBtn.addEventListener('click', createSongBlock);
+
+  reviewForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const album = reviewForm.album.value.trim();
+    const artist = reviewForm.artist.value.trim();
+    const songs = [];
+
+    const songBlocks = songsContainer.querySelectorAll('.song-block');
+    if (songBlocks.length === 0) {
+      status.textContent = '❌ Please add at least one song.';
+      return;
     }
 
-    // Start with one song block
-    createSongBlock();
+    songBlocks.forEach(block => {
+      const name = block.querySelector('.song-name').value.trim();
+      const link = block.querySelector('.song-link').value.trim();
+      const rating = block.querySelector('.song-rating').value.trim();
+      const features = block.querySelector('.song-features').value.trim();
 
-    addSongBtn.addEventListener('click', () => {
-      createSongBlock();
+      if (!name || !rating) return;
+
+      const songArtist = features
+        ? artist + ', ' + features.split(',').map(f => f.trim()).join(', ')
+        : artist;
+
+      songs.push({
+        album,
+        artist: songArtist,
+        song: name,
+        rating,
+        spotify_link: link
+      });
     });
 
-    reviewForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
+    if (songs.length === 0) {
+      status.textContent = '❌ Please fill out all required song fields.';
+      return;
+    }
 
-      const album = reviewForm.album.value.trim();
-      const artist = reviewForm.artist.value.trim();
-      const songs = [];
+    // ✅ Send all songs in one batch
+    try {
+      status.textContent = '⏳ Uploading album...';
 
-      const songBlocks = songsContainer.querySelectorAll('.song-block');
-      if (songBlocks.length === 0) {
-        status.textContent = '❌ Please add at least one song.';
-        return;
-      }
-
-      songBlocks.forEach(block => {
-        const name = block.querySelector('.song-name').value.trim();
-        const link = block.querySelector('.song-link').value.trim();
-        const rating = block.querySelector('.song-rating').value.trim();
-        const features = block.querySelector('.song-features').value.trim();
-
-        if (!name || !rating) return; // skip incomplete
-
-        const songArtist = features 
-          ? artist + ', ' + features.split(',').map(f => f.trim()).join(', ') 
-          : artist;
-
-        songs.push({
-          album,
-          artist: songArtist,
-          song: name,
-          rating,
-          spotify_link: link
-        });
+      const res = await fetch('/api/review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ songs }) // send array of songs
       });
 
-      if (songs.length === 0) {
-        status.textContent = '❌ Please fill out all required song fields.';
-        return;
-      }
+      if (!res.ok) throw new Error('Server returned an error');
+      const result = await res.text();
 
-      try {
-        for (const song of songs) {
-          const res = await fetch('/api/review', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(song)
-          });
+      status.textContent = `✅ ${result || 'Album submitted successfully!'}`;
+      reviewForm.reset();
+      songsContainer.innerHTML = '';
+      createSongBlock();
 
-          if (!res.ok) {
-            status.textContent = "❌ Failed to submit one of the songs.";
-            return;
-          }
-        }
+    } catch (err) {
+      status.textContent = '❌ Error: ' + err.message;
+    }
+  });
+</script>
 
-        status.textContent = '✅ Album submitted successfully!';
-        reviewForm.reset();
-        songsContainer.innerHTML = '';
-        createSongBlock(); // reset with one empty song
-
-      } catch (err) {
-        status.textContent = '❌ Error: ' + err.message;
-      }
-    });
-  </script>
 </body>
 </html>
