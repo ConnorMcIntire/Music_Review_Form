@@ -219,7 +219,7 @@
     try {
       status.textContent = '⏳ Uploading album...';
 
-      const res = await fetch('/api/review', {
+      const res = await fetch('https://script.google.com/macros/s/AKfycbxS6G2hpt2Lsl4esplUzyPY3PsduRHoaKzW6vQyaKW0EPkxuaaXevG_SAy3EZtbUkSx/exec', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ songs }) // send array of songs
