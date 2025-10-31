@@ -53,8 +53,7 @@
       font-weight: bold;
     }
 
-    input,
-    select {
+    input {
       width: 100%;
       padding: 0.6rem;
       margin-top: 0.4rem;
@@ -86,34 +85,6 @@
       margin-top: 1rem;
       font-weight: bold;
     }
-
-    .song-block {
-      background: rgba(255, 255, 255, 0.05);
-      padding: 1rem;
-      margin-top: 1rem;
-      border-radius: 8px;
-      position: relative;
-    }
-
-    .remove-song {
-      background: #ef4444;
-      color: white;
-      border: none;
-      padding: 0.35rem 0.6rem;
-      font-size: 0.8rem;
-      border-radius: 9999px;
-      /* pill shape */
-      cursor: pointer;
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      width: auto;
-      display: inline-block;
-    }
-
-    .remove-song:hover {
-      background: #dc2626;
-    }
   </style>
 </head>
 
@@ -127,128 +98,65 @@
   </nav>
 
   <div class="container">
-    <h1>Submit a Music Album</h1>
+    <h1>Submit a Music Review</h1>
     <form id="reviewForm">
+      <label>Song:
+        <input type="text" name="song" required />
+      </label>
       <label>Album:
         <input type="text" name="album" required />
       </label>
       <label>Artist:
         <input type="text" name="artist" required />
       </label>
+      <label>Rating (1-10):
+        <input type="number" name="rating" min="1" max="10" required />
+      </label>
+      <label>Spotify Link:
+        <input type="url" name="spotify_link" placeholder="https://open.spotify.com/track/..." />
+      </label>
 
-      <div id="songsContainer"></div>
-
-      <button type="button" id="addSong">➕ Add Song</button>
-      <button type="submit">Submit Album</button>
+      <button type="submit">Submit</button>
     </form>
     <p id="status"></p>
   </div>
 
   <script>
-    const reviewForm = document.getElementById('reviewForm');
-    const songsContainer = document.getElementById('songsContainer');
-    const addSongBtn = document.getElementById('addSong');
+    const form = document.getElementById('reviewForm');
     const status = document.getElementById('status');
 
-    // Function to create a song block
-    function createSongBlock() {
-      const div = document.createElement('div');
-      div.classList.add('song-block');
-      div.innerHTML = `
-      <h3>Song</h3>
-      <label>Song Name:
-        <input type="text" class="song-name" required />
-      </label>
-      <label>Spotify Link:
-        <input type="url" class="song-link" placeholder="https://open.spotify.com/track/..." />
-      </label>
-      <label>Rating (1-10):
-        <input type="number" class="song-rating" min="1" max="10" required />
-      </label>
-      <label>Feature(s) (comma-separated):
-        <input type="text" class="song-features" />
-      </label>
-      <button type="button" class="remove-song">✖ Remove</button>
-    `;
-
-      div.querySelector('.remove-song').addEventListener('click', () => div.remove());
-      songsContainer.appendChild(div);
-    }
-
-    // Start with one song block
-    createSongBlock();
-
-    addSongBtn.addEventListener('click', createSongBlock);
-
-    reviewForm.addEventListener('submit', async (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
+      status.textContent = "⏳ Submitting...";
 
-      const album = reviewForm.album.value.trim();
-      const artist = reviewForm.artist.value.trim();
-      const songs = [];
+      const formData = {
+        type: "music",
+        song: form.song.value.trim(),
+        album: form.album.value.trim(),
+        artist: form.artist.value.trim(),
+        rating: form.rating.value.trim(),
+        spotify_link: form.spotify_link.value.trim()
+      };
 
-      const songBlocks = songsContainer.querySelectorAll('.song-block');
-      if (songBlocks.length === 0) {
-        status.textContent = '❌ Please add at least one song.';
-        return;
-      }
-
-      songBlocks.forEach(block => {
-        const name = block.querySelector('.song-name').value.trim();
-        const link = block.querySelector('.song-link').value.trim();
-        const rating = block.querySelector('.song-rating').value.trim();
-        const features = block.querySelector('.song-features').value.trim();
-
-        if (!name || !rating) return;
-
-        const songArtist = features
-          ? artist + ', ' + features.split(',').map(f => f.trim()).join(', ')
-          : artist;
-
-        songs.push({
-          album,
-          artist: songArtist,
-          song: name,
-          rating,
-          spotify_link: link
-        });
-      });
-
-      if (songs.length === 0) {
-        status.textContent = '❌ Please fill out all required song fields.';
-        return;
-      }
-
-      // ✅ Send all songs in one batch
       try {
-        status.textContent = '⏳ Uploading album...';
-
         const res = await fetch('https://script.google.com/macros/s/AKfycbxS6G2hpt2Lsl4esplUzyPY3PsduRHoaKzW6vQyaKW0EPkxuaaXevG_SAy3EZtbUkSx/exec', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(
-            songs.map(song => ({
-              ...song,
-              type: "music"
-            }))
-          )
-
+          body: JSON.stringify(formData)
         });
 
-        if (!res.ok) throw new Error('Server returned an error');
-        const result = await res.text();
+        const text = await res.text();
 
-        status.textContent = `✅ ${result || 'Album submitted successfully!'}`;
-        reviewForm.reset();
-        songsContainer.innerHTML = '';
-        createSongBlock();
-
+        if (res.ok && text.includes("Success")) {
+          status.textContent = "✅ Review submitted successfully!";
+          form.reset();
+        } else {
+          status.textContent = "❌ Error submitting review: " + text;
+        }
       } catch (err) {
-        status.textContent = '❌ Error: ' + err.message;
+        status.textContent = "❌ Network error: " + err.message;
       }
     });
   </script>
-
 </body>
-
 </html>
