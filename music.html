@@ -12,20 +12,24 @@
       margin: 0;
       padding: 0;
     }
+
     nav {
       background: #111827;
       padding: 1rem;
       text-align: center;
     }
+
     nav a {
       color: white;
       margin: 0 1rem;
       text-decoration: none;
       font-weight: bold;
     }
+
     nav a:hover {
       text-decoration: underline;
     }
+
     .container {
       background-color: rgba(0, 0, 0, 0.7);
       padding: 2rem;
@@ -35,16 +39,19 @@
       margin: 3rem auto;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
     }
+
     h1 {
       text-align: center;
       margin-bottom: 1.5rem;
       font-size: 1.8rem;
     }
+
     label {
       display: block;
       margin-top: 1rem;
       font-weight: bold;
     }
+
     input, select {
       width: 100%;
       padding: 0.6rem;
@@ -53,6 +60,7 @@
       border-radius: 6px;
       font-size: 1rem;
     }
+
     button {
       margin-top: 1.8rem;
       width: 100%;
@@ -66,14 +74,17 @@
       cursor: pointer;
       transition: background 0.3s ease;
     }
+
     button:hover {
       background: #059669;
     }
+
     #status {
       text-align: center;
       margin-top: 1rem;
       font-weight: bold;
     }
+
     .song-block {
       background: rgba(255, 255, 255, 0.05);
       padding: 1rem;
@@ -81,29 +92,34 @@
       border-radius: 8px;
       position: relative;
     }
+
     .remove-song {
-      background: #ef4444;
-      color: white;
-      border: none;
-      padding: 0.35rem 0.6rem;
-      font-size: 0.8rem;
-      border-radius: 9999px;
-      cursor: pointer;
-      position: absolute;
-      top: 10px;
-      right: 10px;
-    }
-    .remove-song:hover {
-      background: #dc2626;
-    }
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.8rem;
+  border-radius: 9999px; /* pill shape */
+  cursor: pointer;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: auto;
+  display: inline-block;
+}
+
+.remove-song:hover {
+  background: #dc2626;
+}
   </style>
 </head>
 <body>
   <nav>
     <a href="book.html">📚 Books</a>
     <a href="music.html">🎵 Music</a>
-    <a href="movie.html">🎬 Movies</a>
+    <a href="movie.html">🎬 Movie</a>
     <a href="game.html">🎮 Games</a>
+    <a href="podcast.html">🎧 Podcasts</a>
   </nav>
 
   <div class="container">
@@ -117,6 +133,7 @@
       </label>
 
       <div id="songsContainer"></div>
+
       <button type="button" id="addSong">➕ Add Song</button>
       <button type="submit">Submit Album</button>
     </form>
@@ -129,9 +146,7 @@
     const addSongBtn = document.getElementById('addSong');
     const status = document.getElementById('status');
 
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxS6G2hpt2Lsl4esplUzyPY3PsduRHoaKzW6vQyaKW0EPkxuaaXevG_SAy3EZtbUkSx/exec";
-
-    // Create a song input block
+    // Function to create a song block
     function createSongBlock() {
       const div = document.createElement('div');
       div.classList.add('song-block');
@@ -143,7 +158,7 @@
         <label>Spotify Link:
           <input type="url" class="song-link" placeholder="https://open.spotify.com/track/..." />
         </label>
-        <label>Rating (1–10):
+        <label>Rating (1-10):
           <input type="number" class="song-rating" min="1" max="10" required />
         </label>
         <label>Feature(s) (comma-separated):
@@ -151,23 +166,32 @@
         </label>
         <button type="button" class="remove-song">✖ Remove</button>
       `;
-      div.querySelector('.remove-song').addEventListener('click', () => div.remove());
+
+      // Attach remove functionality
+      div.querySelector('.remove-song').addEventListener('click', () => {
+        div.remove();
+      });
+
       songsContainer.appendChild(div);
     }
 
-    createSongBlock(); // start with one song block
+    // Start with one song block
+    createSongBlock();
 
-    addSongBtn.addEventListener('click', createSongBlock);
+    addSongBtn.addEventListener('click', () => {
+      createSongBlock();
+    });
 
     reviewForm.addEventListener('submit', async (e) => {
       e.preventDefault();
+
       const album = reviewForm.album.value.trim();
       const artist = reviewForm.artist.value.trim();
-      const songBlocks = songsContainer.querySelectorAll('.song-block');
       const songs = [];
 
-      if (!album || !artist) {
-        status.textContent = "❌ Please fill out Album and Artist.";
+      const songBlocks = songsContainer.querySelectorAll('.song-block');
+      if (songBlocks.length === 0) {
+        status.textContent = '❌ Please add at least one song.';
         return;
       }
 
@@ -177,14 +201,13 @@
         const rating = block.querySelector('.song-rating').value.trim();
         const features = block.querySelector('.song-features').value.trim();
 
-        if (!name || !rating) return;
+        if (!name || !rating) return; // skip incomplete
 
-        const songArtist = features
-          ? artist + ", " + features.split(',').map(f => f.trim()).join(', ')
+        const songArtist = features 
+          ? artist + ', ' + features.split(',').map(f => f.trim()).join(', ') 
           : artist;
 
         songs.push({
-          type: "music",
           album,
           artist: songArtist,
           song: name,
@@ -194,26 +217,31 @@
       });
 
       if (songs.length === 0) {
-        status.textContent = "❌ Please add at least one valid song.";
+        status.textContent = '❌ Please fill out all required song fields.';
         return;
       }
 
       try {
         for (const song of songs) {
-          const res = await fetch(SCRIPT_URL, {
-            method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(song),
+          const res = await fetch('/api/review', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(song)
           });
+
+          if (!res.ok) {
+            status.textContent = "❌ Failed to submit one of the songs.";
+            return;
+          }
         }
 
-        status.textContent = "✅ Album submitted successfully!";
+        status.textContent = '✅ Album submitted successfully!';
         reviewForm.reset();
         songsContainer.innerHTML = '';
-        createSongBlock();
+        createSongBlock(); // reset with one empty song
+
       } catch (err) {
-        status.textContent = "❌ Error: " + err.message;
+        status.textContent = '❌ Error: ' + err.message;
       }
     });
   </script>
